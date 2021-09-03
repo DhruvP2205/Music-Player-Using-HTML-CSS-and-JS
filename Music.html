@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Music Player</title>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" type="text/css" href="css\style.css">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+	<div class="main_div">
+		<div class="music_container">
+			<h2 id="title">Ringtone</h2>
+			<h2 id="artist">pagalworld.com</h2>
+			<div class="img-container">
+				<img src="img/music1.jpg" alt="Image">
+			</div>
+			<audio src="music/music1.mp3"></audio>
+
+			<!-- Progress Bar -->
+			<div class="progressbar_container" id="progress_container">
+				<div class="progress_duration_meter">
+					<div id="current_time">0:00</div>
+					<div id="duration">0:00</div>
+				</div>
+				<div class="progress_div" id="progress_div">
+					<div class="progress" id="progress"></div>
+				</div>
+			</div>
+
+			<!-- Controls -->
+			<div class="music_controls">
+				<i class="fas fa-backward" id="prev" title="Previous"></i>
+				<i class="fas fa-play main_button" id="play" title="Play"></i>
+				<i class="fas fa-forward" id="next" title="Next"></i>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		const music = document.querySelector("audio");
+		const img = document.querySelector("img");
+		const play = document.getElementById("play");
+		const artist = document.getElementById("artist");
+		const title = document.getElementById("title");
+		const prev = document.getElementById("prev");
+		const next = document.getElementById("next");
+
+		let progress = document.getElementById('progress');
+		let duration1 = document.getElementById('duration');
+		let current_time = document.getElementById('current_time');
+
+		const progress_div = document.getElementById('progress_div');
+
+		const song = [
+			{
+				name : "music1",
+				title : "Ringtone",
+				artist : "pagalworld.com",
+			},
+			{
+				name : "music2",
+				title : "Sidhu Son",
+				artist : "Sidhu Moose Wala",
+			},
+			{
+				name : "music3",
+				title : "So High",
+				artist : "Sidhu Moose Wala",
+			},
+			{
+				name : "music4",
+				title : "Regret",
+				artist : "Sidhu Moose Wala",
+			},
+		];
+
+		let isPlaying = false;
+
+		//for play function
+		const playMusic = () =>
+		{
+			isPlaying = true;
+			music.play();
+			play.classList.replace("fa-play","fa-pause");
+			img.classList.add("anime");
+		};
+
+		//for pause function
+		const pauseMusic = () =>
+		{
+			isPlaying = false;
+			music.pause();
+			play.classList.replace("fa-pause","fa-play");
+			img.classList.remove("anime");
+		};
+
+		play.addEventListener("click", () => {
+			isPlaying ? pauseMusic() : playMusic();
+		})
+		
+
+		//changing the music data
+		const loadSong = (songs) =>{
+			title.textContent = songs.title;
+			artist.textContent = songs.artist;
+			music.src = `music/${songs.name}.mp3`;
+			img.src = `img/${songs.name}.jpg`;
+		};
+
+		songIndex = 0;
+
+		const nextSong = () =>
+		{
+			songIndex = (songIndex + 1) % song.length;
+			loadSong(song[songIndex]);
+			playMusic();
+		};
+
+		const prevSong = () =>
+		{
+			songIndex = (songIndex - 1 + song.length) % song.length;
+			loadSong(song[songIndex]);
+			playMusic();
+		};
+
+		/*progress Js Work*/
+		music.addEventListener('timeupdate', (event) =>
+		{
+			const {currentTime,duration} = event.srcElement;
+			
+			let progress_time = (currentTime / duration) * 100;
+
+			progress.style.width = `${progress_time}%`;
+
+
+			/*music duration update*/
+			let min_dur = Math.floor(duration / 60);
+			let sec_dur = Math.floor(duration % 60);
+			
+
+			let min_ct = Math.floor(currentTime / 60);
+			let sec_ct = Math.floor(currentTime % 60);
+			
+			if (sec_ct < 10)
+			{
+				sec_ct = `0${sec_ct}`;
+			}
+
+			if(duration)
+			{
+				duration1.innerText = `${min_dur}:${sec_dur}`;
+				current_time.innerText = `${min_ct}:${sec_ct}`;
+			}
+		});
+
+		//Progress functionality
+		progress_div.addEventListener('click', (event) => 
+		{
+			const {duration} = music;
+
+			let move_progress = (event.offsetX / event.srcElement.clientWidth) * duration;
+
+			music.currentTime = move_progress;
+		});
+
+		music.addEventListener('ended',nextSong);
+
+		next.addEventListener("click",nextSong);
+		prev.addEventListener("click",prevSong);
+
+	</script>
+</body>
+</html>
